@@ -1,0 +1,5 @@
+directories:
+  - name: music
+    path: "~/Music"
+  - name: documents
+    path: "~/Documents"
