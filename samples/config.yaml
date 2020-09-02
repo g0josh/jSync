@@ -1,5 +1,7 @@
 directories:
-  - name: music
-    path: "~/Music"
-  - name: documents
+  - name: "documents"
     path: "~/Documents"
+    description: "All documents in one place"
+  - name: "music"
+    path: "~/Music"
+    description: "All music in one place"
