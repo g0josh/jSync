@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"os"
 	"os/user"
@@ -13,6 +12,7 @@ import (
 
 var configPath string
 var defaultConfigPath string
+var config *configmanager.Config
 
 func init() {
 	user, err := user.Current()
@@ -25,6 +25,10 @@ func init() {
 
 func main() {
 	flag.Parse()
+
+	// Parse config file passed in via flags
+	// If it does not exist use the default config file at ~/.config/jsync/config.yaml
+	// If default config file does not exist create a new empty one
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
 		if configPath != defaultConfigPath {
 			log.Printf("%v not found. Using %v instead", configPath, defaultConfigPath)
@@ -32,9 +36,16 @@ func main() {
 			log.Printf("%v not found. Creating a new one", defaultConfigPath)
 		}
 		// make a new config file
-		if confErr := configmanager.CreateEmptyConfig(defaultConfigPath); confErr != nil {
-			log.Fatalf("Error while creating config file- %v", confErr)
+		if config, err = config.CreateEmptyConfig(defaultConfigPath); err != nil {
+			log.Fatalf("Error while creating config file- %v", err)
 		}
+		configPath = defaultConfigPath
 	}
-	fmt.Println(configPath)
+
+	log.Printf("Using config file %v", configPath)
+	config, err := config.ParseConfig(configPath)
+	if err != nil {
+		log.Fatalf("Error reading config file - %v", err)
+	}
+	log.Println(*config)
 }

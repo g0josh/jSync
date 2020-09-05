@@ -12,37 +12,37 @@ import (
 type Config struct {
 	Directories []struct {
 		Name        string `yaml:"name,omitempty"`
-		Description string `yaml:"description,omitempty"`
 		Path        string `yaml:"path,omitempty"`
+		Description string `yaml:"description,omitempty"`
 	} `yaml:"directories,omitempty"`
 }
 
-func ReadConfig(path string) (Config, error) {
-	var result Config
+func (c *Config) ParseConfig(path string) (*Config, error) {
 	yamlFile, err := ioutil.ReadFile(path)
 	if err != nil {
-		return result, err
+		return c, err
 	}
-	if err = yaml.Unmarshal(yamlFile, &result); err != nil {
-		return result, err
+	if err = yaml.Unmarshal(yamlFile, &c); err != nil {
+		return c, err
 	}
-	return result, nil
+	return c, nil
 }
 
-func CreateEmptyConfig(path string) error {
+func (c *Config) CreateEmptyConfig(path string) (*Config, error) {
 	bytes, err := yaml.Marshal(&Config{})
+
 	if err != nil {
-		return err
+		return c, err
 	}
 	dir, _ := filepath.Split(path)
 	if _, statErr := os.Stat(dir); os.IsNotExist(statErr) {
 		if err = os.MkdirAll(dir, 0760); err != nil {
-			return err
+			return c, err
 		}
 	}
 	if err = ioutil.WriteFile(path, bytes, 0660); err != nil {
 		log.Println("Creating")
-		return err
+		return c, err
 	}
-	return nil
+	return c, nil
 }
